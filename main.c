@@ -35,12 +35,13 @@ typedef struct {
 
 }TokenLiteral;
 
-TokenLiteral generate_number(char current,FILE *file){
+TokenLiteral generate_number(char  *buffer,int *curr_indx){
     TokenLiteral token;
     token.type = INT;
-    int value = current - '0';
-    current = fgetc(file);
-    while (isdigit(current) && current != EOF){
+    int value = buffer[*curr_indx] - '0';
+    (*curr_indx)++;
+    char current = buffer[*curr_indx];
+    while (isdigit(current) && current != '\0'){
         if(!isdigit(current)){
             printf("\n");
             break;
@@ -48,59 +49,77 @@ TokenLiteral generate_number(char current,FILE *file){
         value *= 10;
         value += current - '0';
         // printf("%c",current);
-        current = fgetc(file);
+        (*curr_indx)++;
+        current = buffer[*curr_indx];
     }
-    ungetc(current,file);/* return the char read if its not a number */
     token.value = value;
     return token;
 }
 
-TokenKeyword *generate_keyword(char character, FILE *file){
+TokenKeyword *generate_keyword(char *buffer,int *curr_indx){
     TokenKeyword *token = malloc(sizeof(TokenKeyword));
-    char *keyword = malloc(sizeof(char) * 4);
-    char current = character;
+    char *keyword = malloc(sizeof(char) * 5);
     int keyword_index = 0;
-    keyword[keyword_index] = character;
+    keyword[keyword_index] = buffer[*curr_indx];
     keyword_index ++;
-    current = fgetc(file);
-    while(isalpha(current) && current != EOF){
-        keyword[keyword_index] = current;
-        current = fgetc(file);
+    (*curr_indx)++;
+    while(isalpha(buffer[*curr_indx]) && buffer[*curr_indx] != '\0'){
+        keyword[keyword_index] = buffer[*curr_indx];
         keyword_index++;
+        (*curr_indx)++;
     }
-    if (strcmp(keyword, (char*) "exit") == 0){
+    keyword[keyword_index]='\0';
+    if (strcmp(keyword, "exit") == 0){
         token->type = EXIT;
     }else{
         token->type = IDENT;
     }
-    ungetc(current,file);
 
     return token;
 }
 
-/*TODO: Read the entire file into a buffer instead of each character at a time...
- * This would speed up the lexer */
 void lexer(FILE *file){
-    char current = fgetc(file);
+    long length ;
 
-    while(current != EOF){
-        if (current == ';'){
+    char *buffer ;
+    fseek(file,0,SEEK_END);
+    length = ftell(file);
+    fseek(file,0,SEEK_SET);
+
+    buffer = malloc(sizeof(char) * length);
+    fread(buffer,1,length,file);
+    fclose(file);
+    buffer[length] = '\0';
+
+    int *curr_indx = (int*)malloc(sizeof(int));
+    *curr_indx = 0;
+
+    while(buffer[*curr_indx] != '\0'){
+        if (buffer[*curr_indx] == ';'){
             printf("FOUND SEMICOLON\n");
-        }else if (current == '('){
+            (*curr_indx)++;
+        }else if (buffer[*curr_indx] == '('){
             printf("FOUND OPEN PAREN\n");
-        }else if (current == ')'){
+            (*curr_indx)++;
+        }else if (buffer[*curr_indx] == ')'){
             printf("FOUND CLOSE PAREN\n");
-        }else if (isdigit(current)){
-            TokenLiteral test_token= generate_number(current,file);
+            (*curr_indx)++;
+        }else if (isdigit(buffer[*curr_indx])){
+            TokenLiteral test_token= generate_number(buffer,curr_indx);
             printf("TEST TOKEN VALUE : %d\n",test_token.value);
-        }else if (isalpha(current)){
-            TokenKeyword *test_token = generate_keyword(current,file);
+        }else if (isalpha(buffer[*curr_indx])){
+            TokenKeyword *test_token = generate_keyword(buffer,curr_indx);
             printf("TEST TOKEN %d\n",test_token->type);
 
             // printf("FOUNC CHARACTER: %c\n",current);
         }
-        current = fgetc(file);
+        else if (buffer[*curr_indx] == '\n') {
+            printf("FOUND NEW LINE\n\n");
+            (*curr_indx)++;
+        }
     }
+
+    free(curr_indx);
 
 }
 int main(){
