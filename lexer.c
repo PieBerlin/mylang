@@ -5,9 +5,9 @@
 #include "lexer.h"
 
 
-Token generate_number(char  *buffer,int *curr_indx){
-    Token token;
-    token.type = INT;
+Token *generate_number(char  *buffer,int *curr_indx){
+    Token *token = malloc(sizeof(Token));
+    token->type = INT;
     int value = buffer[*curr_indx] - '0';
     (*curr_indx)++;
     char current = buffer[*curr_indx];
@@ -22,7 +22,10 @@ Token generate_number(char  *buffer,int *curr_indx){
         current = buffer[*curr_indx];
     }
     // token.value = value;
-    token.value =  (char*) value;
+    int size = strlen(TO_STRING(value)) + 1;
+    token->value = malloc(size);
+    snprintf(token->value, size, "%d",value);
+    token->value[size + 1] ='\0'; 
     return token;
 }
 
@@ -59,11 +62,11 @@ Token *generate_separator_or_operator(char *buffer,int *curr_indx,TokenType type
 
 void print_token(Token token){
     printf("TOKEN VALUE: ");
-    printf("'");
+    printf(" '");
     for (int i = 0; token.value[i] != '\0';i++){
         printf("%c",token.value[i]);
     }
-    printf("'");
+    printf("' ");
 
     switch (token.type){
         case INT:
@@ -132,7 +135,7 @@ Token *lexer(FILE *file){
 
         }
         else if (isdigit(buffer[*curr_indx])){
-            *token = generate_number(buffer,curr_indx);
+            token = generate_number(buffer,curr_indx);
             tokens[tokens_index] = *token;
             tokens_index ++;
         }else if (isalpha(buffer[*curr_indx])){
@@ -140,9 +143,8 @@ Token *lexer(FILE *file){
             tokens[tokens_index] = *token;
             tokens_index++;
         }
-        else if (buffer[*curr_indx] == '\n') {
-            printf("FOUND NEW LINE\n\n");
-            *curr_indx += 1;
+        else{
+            break;
         }
         free(token);
     }
