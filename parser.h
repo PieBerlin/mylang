@@ -8,21 +8,18 @@
 
 #include "lexer.h"
 
-typedef enum{
-    INT_LIT,
-    STATEMENT,
-    SEP,
-    BEGIN,
-}NodeType;
 
 
 typedef struct Node{
     char *value;
-    NodeType type; 
+    TokenType type; 
    struct  Node *right;
    struct Node *left;
 }Node;
 
-Token *parser(Token *tokens);
+Node *parser(Token *tokens);
+void print_tree(Node*,int,char *);
+Node *init_node(char*,TokenType);
+void print_error(char*);
 
 #endif // PARSER_H

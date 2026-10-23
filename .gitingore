@@ -1,0 +1,7 @@
+*.o
+generated
+assembly/
+generated.asm 
+main
+
+

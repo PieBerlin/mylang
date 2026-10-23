@@ -30,15 +30,14 @@ int main(int argc,char *argv[]){
     }
 
 
-    parser(tokens);
-    // Node *test = parser(tokens);
+    Node *test = parser(tokens);
 
-    // generate_code(test);
-    // FILE *assembly_file = fopen("generated.asm","r");
-    // if(!assembly_file){
-    //     printf("ERROR: File not found\n");
-    //     exit(1);
-    // }
-    // system("./buildasm.sh");
+    generate_code(test);
+    FILE *assembly_file = fopen("generated.asm","r");
+    if(!assembly_file){
+        printf("ERROR: File not found\n");
+        exit(1);
+    }
+    system("./buildasm.sh");
 
 }
