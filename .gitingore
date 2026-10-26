@@ -4,4 +4,6 @@ assembly/
 generated.asm 
 main
 
+build/
+
 

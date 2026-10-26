@@ -7,8 +7,24 @@ void traverse_tree(Node *node,FILE *file){
         return;
     if (strcmp(node->value ,"EXIT") == 0)
         fprintf(file, "\tmov rax, 60\n");
+    if (node->type == OPERATOR){
+        printf("%s\n",node->value);
+        if(strcmp(node->value,"+") == 0){
+            fprintf(file, "\tmov rdi, %s\n",node->left->value);
+            fprintf(file, "\tadd rdi, %s\n",node->right->value);
+            node->left = NULL;
+            node->right = NULL;
+        }else if(strcmp(node->value,"-") == 0){
+            fprintf(file, "\tmov rdi, %s\n",node->left->value);
+            fprintf(file, "\tsub rdi, %s\n",node->right->value);
+            node->left = NULL;
+            node->right = NULL;
+
+        }
+    }
     if(node->type  == INT) 
         fprintf(file, "\tmov rdi, %s\n",node->value);
+    
     if (strcmp(node->value,";") == 0)
         fprintf(file, "\tsyscall");
     traverse_tree(node->left,file);
@@ -24,4 +40,5 @@ int generate_code(Node *root){
 
     traverse_tree(root,file);
     fclose(file);
+    return 0;
 }

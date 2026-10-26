@@ -8,8 +8,8 @@
 Token *generate_number(char  *buffer,int *curr_indx){
     Token *token = malloc(sizeof(Token));
     token->type = INT;
-    int value = buffer[*curr_indx] - '0';
-    (*curr_indx)++;
+    int  value = buffer[*curr_indx] - '0';
+    *curr_indx += 1;
     char current = buffer[*curr_indx];
     while (isdigit(current) && current != '\0'){
         if(!isdigit(current)){
@@ -18,7 +18,7 @@ Token *generate_number(char  *buffer,int *curr_indx){
         }
         value *= 10;
         value += current - '0';
-        (*curr_indx)++;
+        *curr_indx += 1;
         current = buffer[*curr_indx];
     }
     // token.value = value;
@@ -126,13 +126,18 @@ Token *lexer(FILE *file){
             token = generate_separator_or_operator(buffer,curr_indx,SEPARATOR);
             tokens[tokens_index] = *token;
             tokens_index++;
-            (*curr_indx)++;
+            *curr_indx += 1;
         }else if (buffer[*curr_indx] == '+') {
             token = generate_separator_or_operator(buffer,curr_indx,OPERATOR);
             tokens[tokens_index] = *token;
             tokens_index++;
             *curr_indx += 1;
 
+        }else if (buffer[*curr_indx] == '-') {
+            token = generate_separator_or_operator(buffer,curr_indx,OPERATOR);
+            tokens[tokens_index] = *token;
+            tokens_index++;
+            *curr_indx += 1;
         }
         else if (isdigit(buffer[*curr_indx])){
             token = generate_number(buffer,curr_indx);
@@ -142,9 +147,8 @@ Token *lexer(FILE *file){
             token = generate_keyword(buffer,curr_indx);
             tokens[tokens_index] = *token;
             tokens_index++;
-        }
-        else{
-            break;
+        }else {
+            *curr_indx += 1;
         }
         free(token);
     }
