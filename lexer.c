@@ -138,6 +138,16 @@ Token *lexer(FILE *file){
             tokens[tokens_index] = *token;
             tokens_index++;
             *curr_indx += 1;
+        } else if (buffer[*curr_indx] == '*') {
+            token = generate_separator_or_operator(buffer,curr_indx,OPERATOR);
+            tokens[tokens_index] = *token;
+            tokens_index++;
+            *curr_indx += 1;
+        } else if (buffer[*curr_indx] == '/') {
+            token = generate_separator_or_operator(buffer,curr_indx,OPERATOR);
+            tokens[tokens_index] = *token;
+            tokens_index++;
+            *curr_indx += 1;
         }
         else if (isdigit(buffer[*curr_indx])){
             token = generate_number(buffer,curr_indx);
