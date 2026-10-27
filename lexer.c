@@ -107,7 +107,7 @@ Token *lexer(FILE *file){
     int *curr_indx = (int*)malloc(sizeof(int));
     *curr_indx = 0;
 
-    Token *tokens = malloc(sizeof(Token));
+    Token *tokens = malloc(sizeof(Token) * 12);
     tokens_index = 0;
 
     while(buffer[*curr_indx] != '\0'){

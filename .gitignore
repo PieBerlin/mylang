@@ -6,4 +6,9 @@ main
 
 build/
 
+# binaries
+hashmap/hashmap
+generated
+main
+
 

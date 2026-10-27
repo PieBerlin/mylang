@@ -32,29 +32,41 @@ void print_error(char *error_type){
     printf("ERROR: %s\n",error_type);
     exit(1);
 }
-void generate_operation_nodes(Token *current_token,Node *current_node){
+Token *generate_operation_nodes(Token *current_token,Node *current_node){
     Node *oper_node = init_node(current_token->value,OPERATOR);
     current_node->left->left = oper_node;
+    current_node = oper_node;
     current_token--;
+    Node *expr_node = init_node(current_token->value,INT);
+    current_node->left = expr_node;
+    current_token++;
+    current_token++;
     while(current_token->type == INT || current_token->type == OPERATOR){
         if (current_token->type == INT){
-            Node *expr_node = init_node(current_token->value,INT);
-            oper_node->left = expr_node;
-            current_token++;
-            current_token++;
-
             if(current_token ->type != INT || current_token == NULL ){
                 print_error("Syntax error");
                 exit(1);
             }
-            Node *second_expr_node = init_node(current_token->value,INT);
-            oper_node->right = second_expr_node;
+            current_token++;
+            if (current_token->type != OPERATOR){
+                current_token--;
+                Node *second_expr_node = init_node(current_token->value,INT);
+                current_node->right = second_expr_node;
+            }
         }
         if (current_token->type == OPERATOR){
+            Node *next_oper_node = init_node(current_token->value,OPERATOR);
+            current_node->right = next_oper_node;
+            current_node = next_oper_node;
+            current_token--;
+            Node *second_expr_node = init_node(current_token->value,INT);
+            current_node->left = second_expr_node;
+            current_token++;
 
         }
         current_token++;
     }
+    return current_token;
 
 }
 
@@ -90,8 +102,8 @@ Node *parser(Token *tokens){
                         if (current_token-> type == INT){
                             current_token++;
                             if(current_token->type == OPERATOR && current_token != NULL){
-                                generate_operation_nodes(current_token,current);
-                                current_token++;
+                                current_token = generate_operation_nodes(current_token,current);
+                                current_token--;
                             }else{
                                 current_token--;
                                 Node *expr_node = init_node(current_token->value,INT);
