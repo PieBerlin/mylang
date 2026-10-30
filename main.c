@@ -29,7 +29,7 @@ int main(int argc,char *argv[]){
         print_token(tokens[i]);
     }
 
-
+/*
     Node *test = parser(tokens);
 
     generate_code(test);
@@ -39,6 +39,8 @@ int main(int argc,char *argv[]){
         exit(1);
     }
     system("./buildasm.sh");
+
+    */
     
 
 }

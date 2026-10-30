@@ -12,6 +12,7 @@ typedef enum {
     KEYWORD,
     SEPARATOR,
     OPERATOR,
+    IDENTIFIER,
     END_OF_TOKENS,
 }TokenType;
 
@@ -28,7 +29,7 @@ typedef struct {
 
 void print_token(Token token);
 Token *generate_number(char *,int*);
-Token *generate_keyword(char*,int*);
+Token *generate_keyword_or_identifier(char*,int*);
 Token *generate_separator_or_operator(char*,int*,TokenType);
 Token *lexer(FILE*);
 

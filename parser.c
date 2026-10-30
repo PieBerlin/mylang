@@ -151,6 +151,9 @@ Node *parser(Token *tokens){
                 break;
             case INT:
                 break;
+            case IDENTIFIER:
+                printf("IDENTIFIER\n");
+                break;
             case BEGINNING:
                 break;
 

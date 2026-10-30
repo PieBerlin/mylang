@@ -29,9 +29,9 @@ Token *generate_number(char  *buffer,int *curr_indx){
     return token;
 }
 
-Token *generate_keyword(char *buffer,int *curr_indx){
+Token *generate_keyword_or_identifier(char *buffer,int *curr_indx){
     Token *token = malloc(sizeof(Token));
-    char *keyword = malloc(sizeof(char) * 5);
+    char *keyword = malloc(sizeof(char) * 8);
     int keyword_index = 0;
     keyword[keyword_index] = buffer[*curr_indx];
     keyword_index ++;
@@ -45,6 +45,13 @@ Token *generate_keyword(char *buffer,int *curr_indx){
     if (strcmp(keyword, "exit") == 0){
         token->type = KEYWORD;
         token->value = "EXIT";
+    }else if (strcmp(keyword,"int") == 0){
+        token->type = KEYWORD;
+        token->value = "INT";
+    }
+    else{
+        token->type = IDENTIFIER;
+        token->value = keyword;
     }
 
     return token;
@@ -81,11 +88,15 @@ void print_token(Token token){
         case OPERATOR:
             printf("TOKEN TYPE : OPERATOR \n");
             break;
+        case IDENTIFIER:
+            printf("TOKEN TYPE: IDENTIFIER\n");
+            break;
         case END_OF_TOKENS:
             printf("END OF TOKENS\n");
             break;
         case BEGINNING:
             printf("BEGINNING \n");
+            break;
     }
 }
 
@@ -107,11 +118,19 @@ Token *lexer(FILE *file){
     int *curr_indx = (int*)malloc(sizeof(int));
     *curr_indx = 0;
 
-    Token *tokens = malloc(sizeof(Token) * 12);
+    int number_of_tokens = 12;
+    int tokens_size = 0;
+    Token *tokens = malloc(sizeof(Token) * number_of_tokens);
     tokens_index = 0;
 
     while(buffer[*curr_indx] != '\0'){
         Token *token = malloc(sizeof(Token));
+        tokens_size ++;
+        if (tokens_size > number_of_tokens){
+            number_of_tokens *= 1.5;
+            tokens = realloc(tokens, sizeof(Token) * number_of_tokens);
+        }
+
         if (buffer[*curr_indx] == ';'){
             token = generate_separator_or_operator(buffer,curr_indx,SEPARATOR);
             tokens[tokens_index] = *token;
@@ -154,7 +173,7 @@ Token *lexer(FILE *file){
             tokens[tokens_index] = *token;
             tokens_index ++;
         }else if (isalpha(buffer[*curr_indx])){
-            token = generate_keyword(buffer,curr_indx);
+            token = generate_keyword_or_identifier(buffer,curr_indx);
             tokens[tokens_index] = *token;
             tokens_index++;
         }else {
