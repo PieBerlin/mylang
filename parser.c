@@ -70,12 +70,122 @@ Token *generate_operation_nodes(Token *current_token,Node *current_node){
 
 }
 
+void handle_exit_syscall(Node *root, Token *current_token,Node* current){
+    Node *exit_node = init_node(current_token->value,KEYWORD);
+    root -> right = exit_node;
+    current = exit_node;
+    current_token ++;
+    if (current_token->type == END_OF_TOKENS){
+        print_error("Invalid Syntax expected '(' \n");
+    }
+    if (strcmp(current_token->value , "(") == 0 && current_token->type == SEPARATOR){
+        Node *open_paren_node = init_node(current_token->value,SEPARATOR);
+        current->left = open_paren_node;
+        current_token++;
+        if (current_token->type == END_OF_TOKENS){
+            print_error("Invalid Syntax on INT\n");
+        }
+        if (current_token-> type == INT  || current_token->type == IDENTIFIER){
+            current_token++;
+            if(current_token->type == OPERATOR && current_token != NULL){
+                current_token = generate_operation_nodes(current_token,current);
+                current_token--;
+            }else{
+                current_token--;
+                Node *expr_node = init_node(current_token->value,current_token->type);
+                current->left->left = expr_node;
+
+            }
+            current_token++;
+            if (current_token->type == END_OF_TOKENS){
+                print_error("Invalid Syntax on ')'\n");
+            }
+            if (strcmp(current_token->value,")") == 0 && current_token->type == SEPARATOR){
+                Node *close_paren_node = init_node(current_token->value,SEPARATOR);
+                current->left->right = close_paren_node;
+                current_token++;
+                if (current_token->type == END_OF_TOKENS){
+                    print_error("Invalid Syntax expected ';' \n");
+                }
+                if (strcmp(current_token->value, ";") == 0 && current_token->type == SEPARATOR){
+                    Node *semi_node = init_node(current_token->value,SEPARATOR);
+                    current->right = semi_node;
+                }else{
+                    print_error("Invalid Syntax ON SEMI\n");
+                }
+
+            }else{
+                print_error("Invalid Syntax ON CLOSE\n");
+            }
+        }else{
+            print_error("Invalid Syntax ON INT\n");
+            exit(1);
+        }
+
+    }else{
+        print_error("Invalid Syntax ON OPEN\n");
+        exit(1);
+    }
+
+
+}
+
+void handle_token_errors(char *error_text,Token *current_token,TokenType type){
+    if (current_token->type == END_OF_TOKENS || current_token->type != type){
+        print_error(error_text);
+    }
+
+}
+
+Node* create_variables(Node *root,Token *current_token,Node *current){
+    (void) root;
+    Node *var_node = init_node(current_token->value,KEYWORD);
+    current->left = var_node;
+    current = var_node;
+    current_token++;
+
+    handle_token_errors("Invalid syntax: expected variable name \n",current_token,IDENTIFIER);
+
+    if (current_token->type == IDENTIFIER){
+        Node *identifier_node = init_node(current_token->value,IDENTIFIER);
+        current->left = identifier_node;
+        current = identifier_node;
+        current_token++;
+    }
+    handle_token_errors("Invalid syntax after identifier: expected = ",current_token,OPERATOR);
+    if (current_token->type == OPERATOR){
+        if (strcmp(current_token->value,"=")){
+            print_error("Invalid Variable syntax expected '='\n");
+        }
+        Node *equals_node = init_node(current_token->value,OPERATOR);
+        current->left = equals_node;
+        current = equals_node;
+        current_token++;
+    }
+
+    handle_token_errors("Invalid Syntax after '='  expected a value",current_token,INT);
+
+    if (current_token->type == INT){
+        Node *expr_node = init_node(current_token->value,INT);
+        current->left = expr_node;
+        current_token++;
+    }
+    handle_token_errors("Invalid syntax after expression : expected ';'\n",current_token,SEPARATOR);
+    current = var_node;
+    if (current_token->type == SEPARATOR && strcmp(current_token->value,";") == 0){
+        Node *semi_node = init_node(current_token->value,SEPARATOR);
+        current->right  = semi_node; 
+        current = semi_node;
+    }
+
+    return current;
+}
+
+
+
 Node *parser(Token *tokens){
     Token *current_token = &tokens[0];
     Node *root = init_node("PROGRAM",BEGINNING);
-
-
-
     Node *current = root;
     while (current_token->type != END_OF_TOKENS){
         if (current == root){
@@ -85,65 +195,12 @@ Node *parser(Token *tokens){
         switch (current_token->type){
             case KEYWORD:
                 if (strcmp(current_token->value, "EXIT") == 0){
-                    Node *exit_node = init_node(current_token->value,KEYWORD);
-                    root -> right = exit_node;
-                    current = exit_node;
-                    current_token ++;
-                    if (current_token->type == END_OF_TOKENS){
-                        print_error("Invalid Syntax expected '(' \n");
-                    }
-                    if (strcmp(current_token->value , "(") == 0 && current_token->type == SEPARATOR){
-                        Node *open_paren_node = init_node(current_token->value,SEPARATOR);
-                        current->left = open_paren_node;
-                        current_token++;
-                        if (current_token->type == END_OF_TOKENS){
-                            print_error("Invalid Syntax on INT\n");
-                        }
-                        if (current_token-> type == INT){
-                            current_token++;
-                            if(current_token->type == OPERATOR && current_token != NULL){
-                                current_token = generate_operation_nodes(current_token,current);
-                                current_token--;
-                            }else{
-                                current_token--;
-                                Node *expr_node = init_node(current_token->value,INT);
-                                current->left->left = expr_node;
-
-                            }
-                            current_token++;
-                            if (current_token->type == END_OF_TOKENS){
-                                print_error("Invalid Syntax on ')'\n");
-                            }
-                            if (strcmp(current_token->value,")") == 0 && current_token->type == SEPARATOR){
-                                Node *close_paren_node = init_node(current_token->value,SEPARATOR);
-                                current->left->right = close_paren_node;
-                                current_token++;
-                                if (current_token->type == END_OF_TOKENS){
-                                    print_error("Invalid Syntax expected ';' \n");
-                                }
-                                if (strcmp(current_token->value, ";") == 0 && current_token->type == SEPARATOR){
-                                    Node *semi_node = init_node(current_token->value,SEPARATOR);
-                                    current->right = semi_node;
-                                    break;
-                                }else{
-                                    print_error("Invalid Syntax ON SEMI\n");
-                                }
-
-                            }else{
-                                print_error("Invalid Syntax ON CLOSE\n");
-                            }
-                        }else{
-                            print_error("Invalid Syntax ON INT\n");
-                            exit(1);
-                        }
-
-                    }else{
-                        print_error("Invalid Syntax ON OPEN\n");
-                        exit(1);
-                    }
+                    handle_exit_syscall(root,current_token,current);
                 }
+                if (strcmp(current_token->value,"INT") == 0){
+                    current = create_variables(root,current_token,current);
 
-
+                }
                 break;
             case SEPARATOR:
                 break;

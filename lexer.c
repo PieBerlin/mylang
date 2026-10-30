@@ -136,7 +136,8 @@ Token *lexer(FILE *file){
             tokens[tokens_index] = *token;
             tokens_index++;
             *curr_indx += 1;
-        }else if (buffer[*curr_indx] == '('){
+        }
+        else if (buffer[*curr_indx] == '('){
             token = generate_separator_or_operator(buffer,curr_indx,SEPARATOR);
             tokens[tokens_index] = *token;
             tokens_index++;
@@ -146,6 +147,12 @@ Token *lexer(FILE *file){
             tokens[tokens_index] = *token;
             tokens_index++;
             *curr_indx += 1;
+        }else if(buffer[*curr_indx] == '='){
+            token = generate_separator_or_operator(buffer,curr_indx,OPERATOR);
+            tokens[tokens_index] = *token;
+            tokens_index++;
+            *curr_indx += 1;
+        
         }else if (buffer[*curr_indx] == '+') {
             token = generate_separator_or_operator(buffer,curr_indx,OPERATOR);
             tokens[tokens_index] = *token;

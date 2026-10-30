@@ -1,4 +1,3 @@
-int meheree = 2
-int x = 12
-exit(1 + 1 + 1);
+int x = 5;
+exit(x);
 

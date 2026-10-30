@@ -28,9 +28,8 @@ int main(int argc,char *argv[]){
     for (size_t i = 0; tokens[i].type != END_OF_TOKENS; i++){
         print_token(tokens[i]);
     }
-
-/*
     Node *test = parser(tokens);
+
 
     generate_code(test);
     FILE *assembly_file = fopen("generated.asm","r");
@@ -40,7 +39,5 @@ int main(int argc,char *argv[]){
     }
     system("./buildasm.sh");
 
-    */
-    
 
 }
