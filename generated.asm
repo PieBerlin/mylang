@@ -4,9 +4,6 @@ _start:
 	push 5
 	push 7
 	push 8
-	mov rax, x
-	mov rbx, 7
-	add rbx
-	mov rdi,rax
-	mov rax , 60
+	mov rax, 60
+	pop rdi
 	syscall
