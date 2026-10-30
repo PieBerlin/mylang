@@ -71,8 +71,9 @@ void traverse_tree(Node *node,FILE *file,int syscall_number){
         fprintf(file, "\tsyscall\n");
 
     } 
-    if (node->type == IDENTIFIER){
-        printf("--- %s\n",node->value);
+    /*Check if its an identifier and and the left is NULL ..Meaning its not variable declaration.*/
+    if (node->type == IDENTIFIER && (node ->left == NULL)){ 
+        // printf("--- %s\n",node->left->value);
         if (syscall_number == 60){
             fprintf(file, "\tmov rax, %d\n",syscall_number);
             fprintf(file, "\tpop rdi\n");
